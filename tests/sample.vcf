@@ -1,0 +1,24 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Sharma;Rahul;;;
+FN:Rahul Sharma
+TEL;TYPE=CELL:+91 98765 43210
+EMAIL;TYPE=HOME:rahul@example.com
+BDAY:1990-05-12
+ORG:Acme Traders;Sales
+TITLE:Manager
+NOTE:Met at Surat expo\, loves cricket
+item1.X-ABLabel:Custom
+END:VCARD
+BEGIN:VCARD
+VERSION:2.1
+N;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=E0=A4=B6=E0=A4=B0=E0=A5=8D=E0=A4=AE=E0=A4=BE;=E0=A4=85=E0=A4=9C=E0=A4=AF;;;
+TEL;CELL:099887 76655
+TEL;HOME:0261 2345678
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:Long Line
+NOTE:This is a very long note that has been folded across
+  two lines by the exporter
+END:VCARD

@@ -1,0 +1,16 @@
+const assert = require("assert");
+const fs = require("fs");
+const { parse } = require("../vcard.js");
+const c = parse(fs.readFileSync(__dirname + "/sample.vcf", "utf8"));
+assert.strictEqual(c.length, 3);
+assert.strictEqual(c[0].name, "Rahul Sharma");
+assert.deepStrictEqual(c[0].phones, ["+91 98765 43210"]);
+assert.strictEqual(c[0].birthday, "1990-05-12");
+assert.strictEqual(c[0].org, "Acme Traders, Sales");
+assert.strictEqual(c[0].note, "Met at Surat expo, loves cricket");
+assert.strictEqual(c[0].props.find((p) => p.name === "X-ABLABEL").group, "ITEM1");
+assert.strictEqual(c[1].name, "अजय शर्मा");
+assert.deepStrictEqual(c[1].phones, ["099887 76655", "0261 2345678"]);
+assert.strictEqual(c[1].props.find((p) => p.name === "TEL").params.TYPE, "CELL");
+assert.strictEqual(c[2].note, "This is a very long note that has been folded across two lines by the exporter");
+console.log("vcard tests passed:", c.length, "contacts");
