@@ -117,10 +117,80 @@
     c.title = title ? unescapeText(title.value) : "";
     const note = first(c, "NOTE");
     c.note = note ? unescapeText(note.value) : "";
+    const ann = findAnniversary(c);
+    c.anniversary = ann ? ann.value.trim() : "";
     return c;
   }
 
-  const api = { parse };
+  // ---- Editing helpers (write back into props so export keeps everything) ----
+  const ANN_LABEL = "_$!<Anniversary>!$_";
+
+  function findAnniversary(c) {
+    const direct = first(c, "ANNIVERSARY");
+    if (direct) return direct;
+    return all(c, "X-ABDATE").find((p) => {
+      const lab = c.props.find((q) => q.name === "X-ABLABEL" && q.group === p.group && p.group);
+      return lab && /anniversary/i.test(lab.value);
+    });
+  }
+
+  function esc(s) {
+    return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  }
+
+  // "1990-05-12", "19900512", "--05-12", "1604-05-12" (Apple, year hidden) -> {y, m, d}
+  function parseDate(value) {
+    const v = (value || "").trim();
+    let m = v.match(/^(\d{4})-?(\d{2})-?(\d{2})/);
+    if (m) return { y: m[1] === "1604" ? "" : m[1], m: +m[2], d: +m[3] };
+    m = v.match(/^--(\d{2})-?(\d{2})/);
+    if (m) return { y: "", m: +m[1], d: +m[2] };
+    return { y: "", m: 0, d: 0 };
+  }
+
+  function formatDate({ y, m, d }) {
+    if (!m || !d) return "";
+    const mm = String(m).padStart(2, "0"), dd = String(d).padStart(2, "0");
+    return y ? `${String(y).padStart(4, "0")}-${mm}-${dd}` : `--${mm}-${dd}`;
+  }
+
+  function setSimple(c, name, text) {
+    c.props = c.props.filter((p) => p.name !== name);
+    if (text) c.props.push({ group: "", name, params: {}, value: esc(text) });
+  }
+
+  function setName(c, name) {
+    c.props = c.props.filter((p) => p.name !== "FN" && p.name !== "N");
+    if (!name) return;
+    const words = name.trim().split(/\s+/);
+    const family = words.length > 1 ? words.pop() : "";
+    c.props.push({ group: "", name: "FN", params: {}, value: esc(name) });
+    c.props.push({ group: "", name: "N", params: {}, value: `${esc(family)};${esc(words.join(" "))};;;` });
+  }
+
+  function setBirthday(c, date) {
+    c.props = c.props.filter((p) => p.name !== "BDAY");
+    const v = formatDate(date);
+    if (v) c.props.push({ group: "", name: "BDAY", params: {}, value: v });
+  }
+
+  function setAnniversary(c, date) {
+    const old = findAnniversary(c);
+    c.props = c.props.filter((p) => {
+      if (p.name === "ANNIVERSARY") return false;
+      if (old && old.group && p.group === old.group && (p.name === "X-ABDATE" || p.name === "X-ABLABEL")) return false;
+      return true;
+    });
+    const v = formatDate(date);
+    if (!v) return;
+    const used = new Set(c.props.map((p) => p.group));
+    let n = 1;
+    while (used.has("ITEM" + n)) n++;
+    c.props.push({ group: "ITEM" + n, name: "X-ABDATE", params: {}, value: v });
+    c.props.push({ group: "ITEM" + n, name: "X-ABLABEL", params: {}, value: ANN_LABEL });
+  }
+
+  const api = { parse, recompute: finish, parseDate, formatDate, setName, setSimple, setBirthday, setAnniversary };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.VCard = api;
 })(typeof self !== "undefined" ? self : this);

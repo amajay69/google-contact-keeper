@@ -63,6 +63,7 @@ function render() {
   const frag = document.createDocumentFragment();
   list.forEach((c) => {
     const li = document.createElement("li");
+    li.dataset.id = c.id;
     li.textContent = c.name || "(no name)";
     const small = document.createElement("small");
     small.textContent = [c.phones[0] || c.emails[0], c.org].filter(Boolean).join("  |  ");
@@ -97,6 +98,72 @@ $("clearBtn").addEventListener("click", async () => {
   await DB.clear();
   contacts = [];
   statusEl.textContent = "No file loaded yet.";
+  render();
+});
+
+// ---- Editor ----
+const MONTHS = ["Month", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function buildDateRow(row) {
+  row.replaceChildren();
+  const day = document.createElement("select");
+  day.add(new Option("Day", 0));
+  for (let i = 1; i <= 31; i++) day.add(new Option(i, i));
+  const mon = document.createElement("select");
+  MONTHS.forEach((m, i) => mon.add(new Option(m, i)));
+  const yr = document.createElement("input");
+  yr.type = "number"; yr.placeholder = "Year"; yr.min = 1900; yr.max = 2100; yr.inputMode = "numeric";
+  row.append(day, mon, yr);
+}
+const readDate = (row) => {
+  const [day, mon, yr] = row.children;
+  return { d: +day.value, m: +mon.value, y: yr.value.trim() };
+};
+const fillDate = (row, value) => {
+  const [day, mon, yr] = row.children;
+  const p = VCard.parseDate(value);
+  day.value = p.d; mon.value = p.m; yr.value = p.y;
+};
+const dateText = (x) => VCard.formatDate(x);
+
+let editing = null;
+const editor = $("editor");
+buildDateRow($("bdRow"));
+buildDateRow($("anRow"));
+
+listEl.addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return;
+  editing = contacts.find((c) => c.id === +li.dataset.id);
+  if (!editing) return;
+  $("edTitle").textContent = editing.name || "(no name)";
+  $("edPhones").textContent = [...editing.phones, ...editing.emails].join("  |  ");
+  $("edName").value = editing.name;
+  $("edOrg").value = editing.org;
+  $("edJob").value = editing.title;
+  $("edNote").value = editing.note;
+  fillDate($("bdRow"), editing.birthday);
+  fillDate($("anRow"), editing.anniversary);
+  editor.showModal();
+});
+
+$("edCancel").addEventListener("click", () => editor.close());
+
+$("editForm").addEventListener("submit", async () => {
+  const c = editing;
+  if (!c) return;
+  const name = $("edName").value.trim(), org = $("edOrg").value.trim();
+  const job = $("edJob").value.trim(), note = $("edNote").value.trim();
+  // Only touch what changed, so untouched data is exported exactly as it came in
+  if (name !== c.name) VCard.setName(c, name);
+  if (org !== c.org) VCard.setSimple(c, "ORG", org);
+  if (job !== c.title) VCard.setSimple(c, "TITLE", job);
+  if (note !== c.note) VCard.setSimple(c, "NOTE", note);
+  const bd = readDate($("bdRow")), an = readDate($("anRow"));
+  if (dateText(bd) !== dateText(VCard.parseDate(c.birthday))) VCard.setBirthday(c, bd);
+  if (dateText(an) !== dateText(VCard.parseDate(c.anniversary))) VCard.setAnniversary(c, an);
+  VCard.recompute(c);
+  await DB.put(c);
+  editing = null;
   render();
 });
 

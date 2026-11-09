@@ -42,6 +42,22 @@
     </div>
     <ul id="list"></ul>
   </main>
+  <dialog id="editor">
+    <form method="dialog" id="editForm">
+      <h2 id="edTitle">Edit contact</h2>
+      <p id="edPhones" class="muted"></p>
+      <label>Name <input id="edName"></label>
+      <label>Company <input id="edOrg"></label>
+      <label>Profession / role <input id="edJob" placeholder="e.g. Chartered Accountant"></label>
+      <fieldset><legend>Birthday</legend><div class="dateRow" id="bdRow"></div></fieldset>
+      <fieldset><legend>Anniversary</legend><div class="dateRow" id="anRow"></div></fieldset>
+      <label>Notes <textarea id="edNote" rows="3" placeholder="How you know them, family, interests"></textarea></label>
+      <div class="row">
+        <button type="button" id="edCancel" class="secondary">Cancel</button>
+        <button type="submit" id="edSave">Save</button>
+      </div>
+    </form>
+  </dialog>
   <script src="vcard.js"></script>
   <script src="db.js"></script>
   <script src="app.js"></script>

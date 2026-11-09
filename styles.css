@@ -13,3 +13,16 @@ button { background: #fff; color: var(--blue); border: 0; border-radius: 6px; pa
 #tools input, #tools select { width: 100%; padding: 10px; margin: 8px 0; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; color: var(--text); }
 .row { display: flex; gap: 8px; }
 button.link { background: none; color: #c5221f; padding: 0; text-decoration: underline; }
+#list li { cursor: pointer; }
+dialog { width: min(92vw, 520px); border: 0; border-radius: 12px; padding: 16px; color: var(--text); background: var(--bg); }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog h2 { margin: 0 0 8px; font-size: 1.1rem; }
+dialog label { display: block; margin: 10px 0; font-size: .85rem; color: #5f6368; }
+dialog input, dialog textarea, dialog select { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; color: var(--text); font-family: inherit; }
+fieldset { border: 0; padding: 0; margin: 10px 0; }
+legend { font-size: .85rem; color: #5f6368; padding: 0; }
+.dateRow { display: flex; gap: 6px; }
+.dateRow > * { flex: 1; min-width: 0; }
+.muted { color: #5f6368; font-size: .85rem; margin: 0 0 4px; word-break: break-word; }
+dialog button { background: var(--blue); color: #fff; flex: 1; padding: 12px; }
+dialog button.secondary { background: #e8eaed; color: var(--text); }
