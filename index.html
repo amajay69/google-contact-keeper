@@ -22,9 +22,28 @@
       Choose contacts file (.vcf)
     </label>
     <p id="status">No file loaded yet.</p>
+    <div id="tools" hidden>
+      <input type="search" id="search" placeholder="Search name, number, email, company">
+      <div class="row">
+        <select id="sort">
+          <option value="az">Name A to Z</option>
+          <option value="za">Name Z to A</option>
+        </select>
+        <select id="filter">
+          <option value="all">All contacts</option>
+          <option value="nobday">No birthday</option>
+          <option value="nophone">No phone number</option>
+          <option value="noname">No name</option>
+          <option value="dupes">Possible duplicates</option>
+        </select>
+      </div>
+      <p id="count"></p>
+      <button id="clearBtn" class="link">Remove all contacts from this device</button>
+    </div>
     <ul id="list"></ul>
   </main>
   <script src="vcard.js"></script>
+  <script src="db.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
